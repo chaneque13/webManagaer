@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Your Tasks</h1>
+<form action="/add" method="POST">
+    <input type="text" name="title" placeholder="Task title" required>
+    <input type="text" name="description" placeholder="Description">
+    <button type="submit">Add Task</button>
+</form>
+
+<ul>
+    {% for task in tasks %}
+    <li>
+        {{ task.title }} - {{ task.description }}
+        <a href="/delete/{{ task.id }}">❌</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
