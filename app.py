@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "your-secret-key-123"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tasks.db"  # Fixed typo: was "SQLACHEMY_DATABASE_URI"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tasks.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
@@ -23,12 +23,12 @@ class Task(db.Model):
 
 # --- Flask login setup --- #
 login_manager = LoginManager(app)
-login_manager.login_view = "login"  # Fixed assignment: was "login_manager = login_view"
+login_manager.login_view = "login"
 
-@login_manager.user_loader  # Fixed: removed space before .user_loader
+@login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))  # Fixed: removed backslash
-    
+    return User.query.get(int(user_id))
+
 # --- Routes --- #
 @app.route("/")
 @login_required
@@ -48,36 +48,6 @@ def add_task():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
-            login_user(user)
-            return redirect(url_for("home"))
-        return "Invalid credentials!"
-    return render_template("login.html")
-
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = generate_password_hash(request.form.get("password"))
-        new_user = User(username=username, password=password)
-        db.session.add(new_user)
-        db.session.commit()
-        return redirect(url_for("login"))
-    return render_template("register.html")
-
-if __name__ == "__main__":
-    with app.app_context():  # Fixed: was "app.app.context()"
-        db.create_all()
-    app.run(debug=True)
-
-
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
     error = None
     if request.method == "POST":
         username = request.form.get("username")
@@ -87,10 +57,7 @@ def login():
             login_user(user)
             return redirect(url_for("home"))
         error = "Invalid username or password"
-    return render_template("login.html", error=error)    
-
-
-
+    return render_template("login.html", error=error)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -109,6 +76,11 @@ def register():
             return redirect(url_for("login"))
     return render_template("register.html", error=error)
 
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("login"))
 
 @app.route("/delete/<int:task_id>")
 @login_required
@@ -120,9 +92,7 @@ def delete_task(task_id):
     db.session.commit()
     return redirect(url_for("home"))
 
-
-@app.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for("login"))
+if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)
