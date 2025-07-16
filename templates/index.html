@@ -1,19 +1,37 @@
 {% extends "base.html" %}
 
+{% block title %}Your Tasks{% endblock %}
+
 {% block content %}
-<h1>Your Tasks</h1>
-<form action="/add" method="POST">
-    <input type="text" name="title" placeholder="Task title" required>
-    <input type="text" name="description" placeholder="Description">
-    <button type="submit">Add Task</button>
+<h1 class="mb-4">Your Tasks</h1>
+
+<!-- Add Task Form -->
+<form action="{{ url_for('add_task') }}" method="POST" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="title" class="form-control" placeholder="Task title" required>
+    </div>
+    <div class="col-md-6">
+        <input type="text" name="description" class="form-control" placeholder="Description">
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Add Task</button>
+    </div>
 </form>
 
-<ul>
+<!-- Task List -->
+<ul class="list-group">
     {% for task in tasks %}
-    <li>
-        {{ task.title }} - {{ task.description }}
-        <a href="/delete/{{ task.id }}">❌</a>
-    </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <strong>{{ task.title }}</strong>
+                {% if task.description %}
+                    <small class="text-muted"> - {{ task.description }}</small>
+                {% endif %}
+            </div>
+            <a href="/delete/{{ task.id }}" class="btn btn-sm btn-outline-danger">❌</a>
+        </li>
+    {% else %}
+        <li class="list-group-item text-muted">No tasks yet. Add one above!</li>
     {% endfor %}
 </ul>
 {% endblock %}
