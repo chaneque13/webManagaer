@@ -88,3 +88,23 @@ def login():
             return redirect(url_for("home"))
         error = "Invalid username or password"
     return render_template("login.html", error=error)    
+
+
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    error = None
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            error = "Username already exists. Please choose another."
+        else:
+            hashed_pw = generate_password_hash(password)
+            new_user = User(username=username, password=hashed_pw)
+            db.session.add(new_user)
+            db.session.commit()
+            return redirect(url_for("login"))
+    return render_template("register.html", error=error)
